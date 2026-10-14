@@ -1,0 +1,11 @@
+//@version=6
+strategy("Trailing Stop Breakout", overlay=true)
+n = input.int(20, "Breakout Length")
+hh = ta.highest(high, n)
+ll = ta.lowest(low, n)
+if close > hh[1]
+    strategy.entry("L", strategy.long)
+if close < ll[1]
+    strategy.entry("S", strategy.short)
+strategy.exit("LX", "L", loss=80000, trail_points=40000, trail_offset=20000)
+strategy.exit("SX", "S", loss=80000, trail_points=40000, trail_offset=20000)

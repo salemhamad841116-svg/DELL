@@ -1,0 +1,1 @@
+UPDATE public.use_forecast_schedules SET timeframe='5m' WHERE symbol='BTCUSD';

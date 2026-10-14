@@ -1,0 +1,13 @@
+//@version=6
+strategy("Limit Stop Entries", overlay=true)
+a = ta.atr(14)
+m = ta.sma(close, 20)
+if strategy.position_size == 0 and close > m
+    strategy.entry("BuyDip", strategy.long, limit=close - a * 0.5)
+if strategy.position_size == 0 and close < m
+    strategy.entry("SellBreak", strategy.short, stop=low - a * 0.25)
+if strategy.position_size != 0
+    strategy.cancel("BuyDip")
+    strategy.cancel("SellBreak")
+strategy.exit("X1", "BuyDip", profit=150000, loss=100000)
+strategy.exit("X2", "SellBreak", profit=150000, loss=100000)

@@ -1,0 +1,1 @@
+ALTER TABLE public.use_candles ADD COLUMN IF NOT EXISTS instrument_id bigint;

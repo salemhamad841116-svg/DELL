@@ -1,0 +1,14 @@
+//@version=6
+strategy("RSI Threshold", overlay=true)
+len = input.int(14, "RSI Length")
+lo = input.float(30, "Oversold")
+hi = input.float(70, "Overbought")
+r = ta.rsi(close, len)
+if ta.crossover(r, lo)
+    strategy.entry("L", strategy.long)
+if ta.crossunder(r, hi)
+    strategy.entry("S", strategy.short)
+if strategy.position_size > 0 and r > 60
+    strategy.close("L")
+if strategy.position_size < 0 and r < 40
+    strategy.close("S")

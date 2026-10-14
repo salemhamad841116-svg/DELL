@@ -1,0 +1,16 @@
+//@version=6
+strategy("MTF Trend Filter", overlay=true)
+fastLen = input.int(10, "Fast")
+htfLen = input.int(20, "HTF EMA")
+htfEma = request.security(syminfo.tickerid, "240", ta.ema(close, htfLen), lookahead=barmerge.lookahead_off)
+htfClose = request.security(syminfo.tickerid, "240", close)
+fast = ta.ema(close, fastLen)
+up = htfClose > htfEma
+if up and ta.crossover(close, fast)
+    strategy.entry("L", strategy.long)
+if not up and strategy.position_size > 0
+    strategy.close("L")
+if not up and ta.crossunder(close, fast)
+    strategy.entry("S", strategy.short)
+if up and strategy.position_size < 0
+    strategy.close("S")

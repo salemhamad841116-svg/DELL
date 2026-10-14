@@ -1,0 +1,1 @@
+DELETE FROM public.use_strategies WHERE name LIKE 'UI Pivot Lines Test%';

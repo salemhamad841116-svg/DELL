@@ -1,0 +1,1 @@
+DELETE FROM public.use_strategies WHERE name IN ('QA Indicator Test', 'QA Indicator Test (Strategy)');

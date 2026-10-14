@@ -1,0 +1,33 @@
+//@version=6
+strategy("Persistent Streak State", overlay=true)
+need = input.int(3, "Streak")
+look = input.int(5, "Lookback")
+bodyScore(o, c) =>
+    d = c - o
+    d > 0 ? 1 : d < 0 ? -1 : 0
+countUp(n) =>
+    cnt = 0
+    for i = 0 to n - 1
+        if close[i] > open[i]
+            cnt += 1
+    cnt
+var int streak = 0
+var int trades = 0
+varip float lastEntry = na
+sc = bodyScore(open, close)
+streak := sc > 0 ? (streak > 0 ? streak + 1 : 1) : sc < 0 ? (streak < 0 ? streak - 1 : -1) : streak
+ups = countUp(look)
+since = ta.barssince(streak >= need)
+lastUpClose = ta.valuewhen(streak >= need, close, 0)
+if streak >= need and ups >= 4 and strategy.position_size <= 0
+    strategy.entry("L", strategy.long)
+    trades += 1
+    lastEntry := close
+if streak <= -need and ups <= 1 and strategy.position_size >= 0
+    strategy.entry("S", strategy.short)
+    trades += 1
+    lastEntry := close
+if strategy.position_size > 0 and nz(since, 99) > 6
+    strategy.close("L")
+if strategy.position_size < 0 and close > nz(lastUpClose, close)
+    strategy.close("S")

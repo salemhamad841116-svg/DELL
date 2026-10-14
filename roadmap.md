@@ -1,0 +1,29 @@
+# Roadmap
+
+- [x] Strategy Source Code viewer
+- [x] Phase 1 final acceptance — DONE / VERIFIED (data layer frozen)
+- [x] Dynamic Symbol Catalog (Crypto/Forex/Metals/Indices/Energy/Futures, provider per symbol, sync button)
+- [x] Phase 2 core: Pine parser → StrategyIR → semantic executor → professional backtest, persisted runs, reproducibility confirmed
+- [x] Phase 2 Pine completeness: request.security (lookahead_off, confirmed HTF), functions, loops, tuples, varip; fill policies; futures contract model + risk sizing; metric labels; golden suite (8 strategies) + MTF leakage tests
+- [x] Convert-to-Strategy accepted & frozen; QA test strategies removed
+- [x] Parity comparer (TradingView CSV vs engine: missing/extra/direction/time & price deltas)
+- [x] Next Candle Forecast mode: indicator features, frozen ledger, auto-scoring, accuracy dashboard
+- [x] Next Candle background production: worker every minute (generate + score), idempotent key, retry/backoff, confidence gate, 3 probabilities, admin health
+- [ ] Next Candle acceptance: app closed for 10+ consecutive 1m candles (user to run)
+- [ ] Language adapters MQL5 → Python → TS/JS (after PINE_SEMANTIC_ENGINE = VERIFIED)
+- [ ] Run TradingView parity certification (blocked: user must supply exported trade lists + exact settings)
+- [ ] Pine semantics: request.security_lower_tf, bar-close fills, partial exits, pyramiding>1 (blocked until implemented)
+- [ ] Session-aligned HTF (>1h) buckets for non-crypto markets
+- [ ] OANDA token (blocked: user must supply)
+- [x] Binance 403: data-api.binance.vision, failure log, 403 backoff + BINANCE_DEGRADED, worker probe (ping/time/klines), PROVIDER_ERROR (no cache/stale forecasts)
+- [ ] Confirm worker probe passes from backend, then repeat 10-minute closed-browser acceptance
+- [x] Crypto via Twelve Data BTC/USD 5m (background create + score verified); Binance kept BLOCKED_BY_SERVER_REGION
+- [x] Databento health check (key valid, DELAYED_BY_PLAN ~8h, live forecasts blocked, historical enabled)
+- [ ] Databento live entitlement (blocked: needs live plan)
+- [ ] TradingView parity VERIFIED (blocked: user CSV exports)
+- [x] Forecast reliability: embargoed walk-forward, calibration (Brier/LogLoss/ECE), signal gate, regime/session breakdown, explainability, model registry + promote/rollback, health monitor, accuracy dashboard
+- [ ] EUR/USD 5m forward test: 300+ evaluated directional calls (blocked: needs real time; Twelve Data quota resets 00:00 UTC)
+- [ ] A validated model that passes calibration (current candidate fails ECE 0.127 > 0.10 → NO SIGNAL until one passes)
+- [x] Indicator Historical Pattern Analyzer (R3→S1 etc., 1m ambiguity resolution, next-candle link, frozen ledger, Pine export)
+- [ ] AI Strategy Analyst chat (queued after Pattern Analyzer)
+- [~] Universal Strategy Engine: static + quant pipeline + admin panel done; sensitivity sweep done; walk-forward selection done; remaining: portfolio correlation UI, code workspace

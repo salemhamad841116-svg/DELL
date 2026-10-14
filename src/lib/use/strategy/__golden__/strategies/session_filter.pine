@@ -1,0 +1,12 @@
+//@version=6
+strategy("London Session EMA", overlay=true)
+sess = input.session("0700-1300", "Session")
+inSess = not na(time(timeframe.period, sess, "UTC"))
+f = ta.ema(close, 8)
+s = ta.ema(close, 21)
+if inSess and ta.crossover(f, s)
+    strategy.entry("L", strategy.long)
+if inSess and ta.crossunder(f, s)
+    strategy.entry("S", strategy.short)
+if not inSess
+    strategy.close_all()

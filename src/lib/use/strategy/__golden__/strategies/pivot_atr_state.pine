@@ -1,0 +1,40 @@
+//@version=6
+strategy("Pivot ATR State Machine", overlay=true)
+left = input.int(5, "Pivot Left")
+right = input.int(5, "Pivot Right")
+atrLen = input.int(14, "ATR Length")
+trailMult = input.float(2.0, "Trail x ATR")
+a = ta.atr(atrLen)
+ph = ta.pivothigh(high, left, right)
+pl = ta.pivotlow(low, left, right)
+var float lastHigh = na
+var float lastLow = na
+var int state = 0
+var float trail = na
+if not na(ph)
+    lastHigh := ph
+if not na(pl)
+    lastLow := pl
+prevState = state
+if state == 0 and close > lastHigh
+    state := 1
+else if state == 0 and close < lastLow
+    state := -1
+else if state == 1 and close < lastLow
+    state := 0
+else if state == -1 and close > lastHigh
+    state := 0
+if state == 1 and prevState != 1
+    strategy.entry("Long", strategy.long)
+    trail := close - a * trailMult
+if state == -1 and prevState != -1
+    strategy.entry("Short", strategy.short)
+    trail := close + a * trailMult
+if strategy.position_size > 0
+    trail := math.max(nz(trail), close - a * trailMult)
+    strategy.exit("LX", "Long", stop=trail)
+if strategy.position_size < 0
+    trail := math.min(nz(trail, close + a * trailMult), close + a * trailMult)
+    strategy.exit("SX", "Short", stop=trail)
+if state == 0 and prevState != 0
+    strategy.close_all()
