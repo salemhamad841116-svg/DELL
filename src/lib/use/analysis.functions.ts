@@ -56,7 +56,7 @@ export const runAnalysis = createServerFn({ method: "POST" })
 
     const symbols = await listSymbols();
     const sym = symbols.find((s) => s.symbol === data.symbol) ?? symbols[0];
-    if (!sym) throw new Error("لا توجد رموز مُهيأة");
+    if (!sym) throw new Error("No symbols configured");
 
     type StrategyRow = {
       id: string;
@@ -91,22 +91,22 @@ export const runAnalysis = createServerFn({ method: "POST" })
     for (const tf of wanted) {
       const spec = getTimeframe(tf);
       if (!spec || !spec.supported) {
-        matrix.push(unsupportedHorizon(tf, "غير متاح من مزود البيانات — لا يتم تلفيق أرقام"));
+        matrix.push(unsupportedHorizon(tf, "Not available from the data provider — numbers are never fabricated"));
         continue;
       }
       const fetched = await getCandles(sym, tf, tf === primary ? 1500 : 900);
       if (tf === primary && fetched.provider) {
-        dataSource = fetched.source === "cache" ? `${fetched.provider} (مخزن مؤقتاً)` : fetched.provider;
+        dataSource = fetched.source === "cache" ? `${fetched.provider} (cached)` : fetched.provider;
         if (fetched.coverage) dataSource += ` · ${fetched.coverage.status} ${fetched.coverage.coveragePercent}%`;
       }
       if (fetched.note) warnings.push(`${tf}: ${fetched.note}`);
       if (fetched.candles.length < 300) {
-        matrix.push(unsupportedHorizon(tf, `بيانات غير كافية (${fetched.candles.length} شمعة)`));
+        matrix.push(unsupportedHorizon(tf, `Insufficient data (${fetched.candles.length} candles)`));
         continue;
       }
       const trained = trainTimeframe(fetched.candles, tf, representation);
       if (!trained) {
-        matrix.push(unsupportedHorizon(tf, "عدد العينات أقل من الحد الأدنى للتدريب"));
+        matrix.push(unsupportedHorizon(tf, "Sample count is below the minimum required for training"));
         continue;
       }
       matrix.push(horizonFromTrained(trained));
@@ -280,7 +280,7 @@ export const deleteStrategy = createServerFn({ method: "POST" })
     const { count } = await supabaseAdmin
       .from("use_predictions").select("id", { count: "exact", head: true }).eq("strategy_id", data.id);
     if ((count ?? 0) > 0) {
-      return { ok: false, reason: `لا يمكن الحذف: ${count} توقعًا مجمّدًا مرتبطًا بها في السجل غير القابل للتعديل. عطّلها بدلًا من ذلك.` };
+      return { ok: false, reason: `Cannot delete: ${count} frozen prediction(s) reference it in the immutable ledger. Disable it instead.` };
     }
     for (const t of ["use_backtests", "use_backtest_runs", "use_models", "use_forecast_schedules"] as const) {
       const { error } = await supabaseAdmin.from(t).delete().eq("strategy_id", data.id);
@@ -404,7 +404,7 @@ export const processNextJob = createServerFn({ method: "POST" }).handler(async (
   try {
     const p = jobInput.parse(job.payload);
     const sym = (await listSymbols()).find((s) => s.symbol === p.symbol);
-    if (!sym) throw new Error("رمز غير معروف");
+    if (!sym) throw new Error("Unknown symbol");
     let rep: StrategyRepresentation | null = null;
     if (p.strategyId) {
       const { data: s } = await supabaseAdmin
@@ -415,7 +415,7 @@ export const processNextJob = createServerFn({ method: "POST" }).handler(async (
       if (s) rep = (s.representation as StrategyRepresentation | null) ?? parseStrategy(s.code, s.name);
     }
     const fetched = await getCandles(sym, p.timeframe, 1500);
-    if (fetched.candles.length < 300) throw new Error(`بيانات غير كافية (${fetched.candles.length})`);
+    if (fetched.candles.length < 300) throw new Error(`Insufficient data (${fetched.candles.length})`);
     const report = runBacktest(sym.symbol, p.timeframe, fetched.candles, rep).report;
     await supabaseAdmin.from("use_backtests").insert({
       strategy_id: p.strategyId ?? null,

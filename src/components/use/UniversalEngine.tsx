@@ -19,7 +19,7 @@ export function UniversalEngine({ symbols, strategies, timeframes }: { symbols: 
   const sr = sm.data as any;
   const sel = "rounded border border-border bg-background px-2 py-1 text-sm";
   return (
-    <Panel title="Universal Strategy Engine — محرك تحليل الاستراتيجيات">
+    <Panel title="Universal Strategy Engine">
       <p className="mb-2 text-xs text-muted-foreground">Static code checks + metrics from the latest saved backtest for this strategy/symbol/timeframe. Run a Professional Backtest first.</p>
       <div className="flex flex-wrap gap-2">
         <select className={sel} value={sid} onChange={(e) => setSid(e.target.value)}><option value="">— strategy —</option>{strategies.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>

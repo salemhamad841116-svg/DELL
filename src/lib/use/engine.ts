@@ -142,7 +142,7 @@ export function horizonFromTrained(t: TrainedTimeframe): HorizonForecast {
     sampleSize: t.usableSamples,
     historicalHitRate: oos.accuracy,
     candlesAvailable: t.candles,
-    ...(t.bundle.overfittingRisk ? { note: "OVERFITTING RISK — الأداء خارج العينة أضعف من المرجع" } : {}),
+    ...(t.bundle.overfittingRisk ? { note: "OVERFITTING RISK — out-of-sample performance is weaker than the baseline" } : {}),
   };
 }
 

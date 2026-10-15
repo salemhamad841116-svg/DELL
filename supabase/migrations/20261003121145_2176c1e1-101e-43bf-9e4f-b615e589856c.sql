@@ -1,6 +1,6 @@
 CREATE TABLE public.use_chat_threads (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text NOT NULL DEFAULT 'محادثة جديدة',
+  title text NOT NULL DEFAULT 'New chat',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );

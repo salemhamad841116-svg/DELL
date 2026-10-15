@@ -34,7 +34,7 @@ const MAX_WINDOW_ATTEMPTS = 4;
 
 export async function getCandles(sym: SymbolRow, timeframe: string, bars = 1000): Promise<CandleFetch> {
   const spec = getTimeframe(timeframe);
-  if (!spec || !spec.supported) return { candles: [], source: "none", provider: null, coverage: null, note: "الفريم غير متاح من مزود البيانات الحالي" };
+  if (!spec || !spec.supported) return { candles: [], source: "none", provider: null, coverage: null, note: "Timeframe not available from the current data provider" };
   const market = marketOf(sym);
   const baseId = resolveProvider(market, timeframe).prov ? timeframe : (spec.aggregateFrom ?? timeframe);
   const baseSpec = getTimeframe(baseId);
@@ -60,7 +60,7 @@ export async function getCandles(sym: SymbolRow, timeframe: string, bars = 1000)
   }
   const { candles, coverage, fromCache, availableEnd } = r!;
   if (!candles.length) return { candles: [], source: "none", provider: null, coverage, note: coverage.error ?? coverage.status, attempts };
-  const note = coverage.status === "PASS_COMPLETE_HISTORICAL_COVERAGE" ? undefined : `${coverage.status} · ${coverage.coveragePercent}% (${coverage.missingBars} ناقصة)`;
+  const note = coverage.status === "PASS_COMPLETE_HISTORICAL_COVERAGE" ? undefined : `${coverage.status} · ${coverage.coveragePercent}% (${coverage.missingBars} missing)`;
   return { candles: out.slice(-bars), source: fromCache ? "cache" : "provider", provider: coverage.actualProvider, coverage, attempts, ...(availableEnd ? { availableEnd } : {}), ...(note ? { note } : {}) };
 }
 

@@ -16,15 +16,15 @@ export async function generateForecast(inp: GenInput) {
   const { getCandles, listSymbols, marketOf } = await import("./market-data.server");
   const { buildIR } = await import("./strategy/ir");
   const sym = (await listSymbols()).find((s) => s.symbol === inp.symbol);
-  if (!sym) throw new Error("الرمز غير متاح");
+  if (!sym) throw new Error("Symbol not available");
   const tfMs = timeframeSeconds(inp.timeframe) * 1000;
-  if (!tfMs) throw new Error("الفريم غير مدعوم");
+  if (!tfMs) throw new Error("Timeframe not supported");
   const minConf = inp.minConfidence ?? DEFAULT_MIN_CONFIDENCE;
 
   let code = ""; let strategyVersion: number | null = null; let strategyName: string | null = null;
   if (inp.strategyId) {
     const { data: s } = await db.from("use_strategies").select("code,version,name").eq("id", inp.strategyId).maybeSingle();
-    if (!s) throw new Error("المؤشر غير موجود");
+    if (!s) throw new Error("Indicator not found");
     code = s.code; strategyVersion = s.version; strategyName = s.name;
   }
   const ir = code ? await buildIR(code, { strategyId: inp.strategyId, version: strategyVersion, language: null }) : null;
@@ -41,7 +41,7 @@ export async function generateForecast(inp: GenInput) {
   const candles = closedBars([...new Map(fetched.candles.map((c) => [c.ts, c])).values()].sort((a, b) => a.ts - b.ts), tfMs, now);
   const src = candles[candles.length - 1];
   const loader = { attempts: fetched.attempts ?? [], availableEnd: fetched.availableEnd ? new Date(fetched.availableEnd).toISOString() : null, closedBars: candles.length };
-  if (!src) return { status: "BLOCKED_NO_DATA" as const, note: fetched.note ?? "لا توجد بيانات", prediction: null, warnings: [] as string[] };
+  if (!src) return { status: "BLOCKED_NO_DATA" as const, note: fetched.note ?? "No data available", prediction: null, warnings: [] as string[] };
   const targetIso = new Date(src.ts + tfMs).toISOString();
   const findExisting = () => db.from("use_predictions").select(NC_SELECT).eq("mode", "NEXT_CANDLE").eq("symbol", sym.symbol).eq("timeframe", inp.timeframe)
     .eq("indicator_hash", indicatorHash).eq("model_version", NC_MODEL_VERSION).eq("target_ts", targetIso).maybeSingle();
@@ -51,22 +51,22 @@ export async function generateForecast(inp: GenInput) {
 
   // Provider's historical feed ends before the latest closed bar → a "next candle" forecast would target the past.
   if (fetched.availableEnd && fetched.availableEnd < now - 2 * tfMs) {
-    return { status: "BLOCKED_PROVIDER_DELAYED" as const, note: `${fetched.provider}: البيانات المنشورة تنتهي عند ${new Date(fetched.availableEnd).toISOString()} (تأخر التغذية التاريخية) — لا يمكن توقع الشمعة القادمة الحقيقية`, prediction: null, warnings: [] as string[], loader };
+    return { status: "BLOCKED_PROVIDER_DELAYED" as const, note: `${fetched.provider}: published data ends at ${new Date(fetched.availableEnd).toISOString()} (historical feed lag) — cannot forecast the real next candle`, prediction: null, warnings: [] as string[], loader };
   }
   if (src.ts + 2 * tfMs <= now && marketOf(sym) === "crypto") {
-    return { status: "BLOCKED_STALE_DATA" as const, note: `آخر شمعة مغلقة ${new Date(src.ts).toISOString()} ليست الأحدث`, prediction: null, warnings: [] as string[] };
+    return { status: "BLOCKED_STALE_DATA" as const, note: `Last closed candle ${new Date(src.ts).toISOString()} is not the latest`, prediction: null, warnings: [] as string[] };
   }
 
   // Non-crypto feed whose last closed bar lags by >2 bars → delayed/stale; never forecast a past "next candle".
   if (src.ts + 2 * tfMs <= now && marketOf(sym) === "forex") {
-    return { status: "BLOCKED_PROVIDER_DELAYED" as const, note: `${fetched.provider}: آخر شمعة مغلقة ${new Date(src.ts).toISOString()} متأخرة ${Math.round((now - src.ts - tfMs) / 1000)}s عن الوقت الحالي — بيانات متأخرة أو السوق مغلق`, prediction: null, warnings: [] as string[], loader };
+    return { status: "BLOCKED_PROVIDER_DELAYED" as const, note: `${fetched.provider}: last closed candle ${new Date(src.ts).toISOString()} is ${Math.round((now - src.ts - tfMs) / 1000)}s behind current time — delayed data or market closed`, prediction: null, warnings: [] as string[], loader };
   }
   // Any market: more than half of the target bar already elapsed → the forecast is no longer "next candle".
   if (now > src.ts + tfMs + tfMs / 2) {
-    return { status: "BLOCKED_PROVIDER_DELAYED" as const, note: `${fetched.provider}: آخر شمعة مغلقة ${new Date(src.ts).toISOString()} وصلت متأخرة — مضى أكثر من نصف الشمعة الهدف`, prediction: null, warnings: [] as string[], loader };
+    return { status: "BLOCKED_PROVIDER_DELAYED" as const, note: `${fetched.provider}: last closed candle ${new Date(src.ts).toISOString()} arrived late — more than half the target candle has elapsed`, prediction: null, warnings: [] as string[], loader };
   }
   const ind = indicatorSeries(ir, candles, { tickerid: sym.symbol, timeframe: inp.timeframe, market: marketOf(sym) });
-  const warnings = [...ind.unsupported.map((u) => `ميزة غير مدعومة — تم تجاهل قيم المؤشر: ${u}`)];
+  const warnings = [...ind.unsupported.map((u) => `Unsupported feature — indicator values ignored: ${u}`)];
   if (fetched.note) warnings.push(fetched.note);
   const model = await activeModel({ symbol: sym.symbol, timeframe: inp.timeframe, indicatorHash, candles, ind, minConf, provider: fetched.provider });
   const f = forecastNext(candles, tfMs, ind);

@@ -126,7 +126,7 @@ export function simulate(
       weekday: d.getUTCDay(),
       month: d.getUTCMonth() + 1,
       regime: regimes[i] ?? "UNCERTAIN",
-      volatilityBucket: volPct < 0.4 ? "منخفض" : volPct < 1 ? "متوسط" : volPct < 2 ? "مرتفع" : "شديد",
+      volatilityBucket: volPct < 0.4 ? "Low" : volPct < 1 ? "Medium" : volPct < 2 ? "High" : "Extreme",
     });
     cooldownUntil = i + Math.max(bars, 1);
   }
@@ -204,17 +204,17 @@ export function buildHistoricalReport(
     periodEnd: last ? new Date(last.ts).toISOString() : null,
     stats: statsFromTrades(trades, candles.length),
     byHour: bucketBy(trades, (t) => `${String(t.hour).padStart(2, "0")}:00`),
-    byWeekday: bucketBy(trades, (t) => ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"][t.weekday] ?? "?"),
-    byMonth: bucketBy(trades, (t) => `شهر ${t.month}`),
+    byWeekday: bucketBy(trades, (t) => ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][t.weekday] ?? "?"),
+    byMonth: bucketBy(trades, (t) => `Month ${t.month}`),
     byRegime: bucketBy(trades, (t) => REGIME_LABELS[t.regime] ?? t.regime),
     byVolatility: bucketBy(trades, (t) => t.volatilityBucket),
     aggregates: [
-      { key: "الشموع", samples: candles.length, winRate: 0, averageReturn: 0 },
-      { key: "الأيام", samples: Math.round(spanDays), winRate: 0, averageReturn: 0 },
-      { key: "الأسابيع", samples: Math.round(spanDays / 7), winRate: 0, averageReturn: 0 },
-      { key: "الأشهر", samples: Math.round(spanDays / 30), winRate: 0, averageReturn: 0 },
-      { key: "السنوات", samples: Number((spanDays / 365).toFixed(2)), winRate: 0, averageReturn: 0 },
+      { key: "Candles", samples: candles.length, winRate: 0, averageReturn: 0 },
+      { key: "Days", samples: Math.round(spanDays), winRate: 0, averageReturn: 0 },
+      { key: "Weeks", samples: Math.round(spanDays / 7), winRate: 0, averageReturn: 0 },
+      { key: "Months", samples: Math.round(spanDays / 30), winRate: 0, averageReturn: 0 },
+      { key: "Years", samples: Number((spanDays / 365).toFixed(2)), winRate: 0, averageReturn: 0 },
     ],
-    featureCombinations: bucketBy(trades, (t) => `${REGIME_LABELS[t.regime] ?? t.regime} + تقلب ${t.volatilityBucket}`).slice(0, 12),
+    featureCombinations: bucketBy(trades, (t) => `${REGIME_LABELS[t.regime] ?? t.regime} + volatility ${t.volatilityBucket}`).slice(0, 12),
   };
 }

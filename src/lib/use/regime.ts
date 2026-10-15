@@ -52,11 +52,11 @@ export function detectRegimes(candles: Candle[]): RegimeSeries {
 }
 
 export const REGIME_LABELS: Record<MarketRegime, string> = {
-  TRENDING_UP: "اتجاه صاعد",
-  TRENDING_DOWN: "اتجاه هابط",
-  RANGE: "عرضي / نطاق",
-  HIGH_VOLATILITY: "تقلب مرتفع",
-  LOW_VOLATILITY: "تقلب منخفض",
-  BREAKOUT: "اختراق",
-  UNCERTAIN: "غير محدد",
+  TRENDING_UP: "Uptrend",
+  TRENDING_DOWN: "Downtrend",
+  RANGE: "Range-bound",
+  HIGH_VOLATILITY: "High volatility",
+  LOW_VOLATILITY: "Low volatility",
+  BREAKOUT: "Breakout",
+  UNCERTAIN: "Uncertain",
 };

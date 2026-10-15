@@ -46,7 +46,7 @@ export const listSchedules = createServerFn({ method: "GET" }).handler(async () 
 export const upsertSchedule = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ symbol: z.string().min(1), timeframe: z.string().min(1), strategyId: z.string().uuid().nullable(), enabled: z.boolean(), minConfidence: z.number().min(0.34).max(0.99) }).parse(d))
   .handler(async ({ data }) => {
-    if (!timeframeSeconds(data.timeframe)) throw new Error("الفريم غير مدعوم");
+    if (!timeframeSeconds(data.timeframe)) throw new Error("Timeframe not supported");
     const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
     let q = db.from("use_forecast_schedules").select("id").eq("symbol", data.symbol).eq("timeframe", data.timeframe);
     q = data.strategyId ? q.eq("strategy_id", data.strategyId) : q.is("strategy_id", null);

@@ -48,7 +48,7 @@ export function ProBacktest({ symbols, strategies }: { symbols: Opt[]; strategie
   const m: any = d?.metrics ?? {};
 
   return (
-    <Panel title="الاختبار التاريخي الاحترافي (المرحلة 2)" subtitle="تنفيذ دلالي شمعة بشمعة للكود الأصلي على بيانات المرحلة 1 المتحقق منها — تنفيذ في الشمعة التالية، بدون نظر للمستقبل.">
+    <Panel title="Professional Backtest (Phase 2)" subtitle="Semantic candle-by-candle execution of the original code on verified Phase 1 data — executed on the next candle, with no look-ahead.">
       <div className="flex flex-wrap items-end gap-2">
         <select className={sel} value={strategyId} onChange={(e) => setSid(e.target.value)}>{strategies.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
         <select className={sel} value={symbol} onChange={(e) => setSymbol(e.target.value)}>{symbols.map((s) => <option key={s.symbol} value={s.symbol}>{s.symbol} · {s.provider ?? ""}</option>)}</select>
@@ -65,11 +65,11 @@ export function ProBacktest({ symbols, strategies }: { symbols: Opt[]; strategie
           <option value="default">Sizing: default</option><option value="fixed">Fixed Contracts / Units</option><option value="risk_percent">Risk % of Equity</option>
         </select>
         {sizing !== "default" && <input className={`${sel} w-20`} value={qty} onChange={(e) => setQty(e.target.value)} title={sizing === "fixed" ? "contracts" : "% risk"} />}
-        <button onClick={() => run.mutate()} disabled={run.isPending || !strategyId || isNonStrategy} className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{run.isPending ? "جارٍ التنفيذ…" : "تشغيل"}</button>
+        <button onClick={() => run.mutate()} disabled={run.isPending || !strategyId || isNonStrategy} className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{run.isPending ? "Running…" : "Run"}</button>
       </div>
       {isNonStrategy && (
         <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-glass-border bg-background/60 p-2 text-xs text-ink">
-          <span>لا يمكن تشغيل Backtest لأن الكود {irData.scriptType === "LIBRARY" ? "مكتبة" : "مؤشر"} ولا يحتوي أوامر دخول/خروج</span>
+          <span>Backtest cannot run because the code is a {irData.scriptType === "LIBRARY" ? "library" : "indicator"} and has no entry/exit orders</span>
           {irData.scriptType === "INDICATOR" && <ConvertToStrategy strategyId={strategyId} />}
         </div>
       )}

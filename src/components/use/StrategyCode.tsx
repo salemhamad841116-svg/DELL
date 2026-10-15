@@ -61,7 +61,7 @@ export function StrategyCode({ id }: { id: string }) {
   return (
     <div className="mt-3 rounded-xl border border-glass-border bg-background/50 p-2.5">
       <div className="mb-2 text-[11px] font-semibold text-ink">Strategy Source Code</div>
-      {q.isError && <p className="text-[11px] text-bear">تعذر تحميل الكود.</p>}
+      {q.isError && <p className="text-[11px] text-bear">Failed to load the code.</p>}
       {s && (
         <div dir="ltr" className="mb-2 flex flex-wrap gap-1.5 text-left">
           <Chip>{s.languageLabel}</Chip>

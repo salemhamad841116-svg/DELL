@@ -186,7 +186,7 @@ INSERT INTO public.use_symbols (symbol, display_name, asset_class, provider_symb
 INSERT INTO public.use_strategies (name, description, language, code, status, enabled, params, symbols, timeframes, representation, validation) VALUES
   (
     'EMA/RSI Baseline',
-    'استراتيجية مرجعية: تقاطع EMA مع تأكيد RSI و ATR لإدارة المخاطر.',
+    'Reference strategy: EMA crossover with RSI confirmation and ATR risk management.',
     'pinescript',
     '//@version=5
 indicator("EMA RSI Baseline", overlay=true)

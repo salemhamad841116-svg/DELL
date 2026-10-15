@@ -4,17 +4,17 @@ import { Chip, Panel, Stat, numFmt, pct } from "./primitives";
 import { cn } from "@/lib/utils";
 
 const DIRECTION_LABEL: Record<NextCandleForecast["direction"], string> = {
-  BULLISH: "ميل صاعد",
-  BEARISH: "ميل هابط",
-  NEUTRAL: "بدون ميل واضح",
+  BULLISH: "Bullish lean",
+  BEARISH: "Bearish lean",
+  NEUTRAL: "No clear lean",
 };
 
 export function NextCandle({ f }: { f: NextCandleForecast }) {
   const tone = f.direction === "BULLISH" ? "bull" : f.direction === "BEARISH" ? "bear" : "neutral";
   return (
     <Panel
-      title="الشمعة القادمة"
-      subtitle="احتمالات مبنية على بيانات محققة — ليست ادعاءً مؤكداً بالنتيجة."
+      title="Next Candle"
+      subtitle="Probabilities based on verified data — not a guaranteed outcome."
       action={
         <div className="flex flex-wrap gap-1.5">
           <Chip>{f.timeframe}</Chip>
@@ -27,21 +27,21 @@ export function NextCandle({ f }: { f: NextCandleForecast }) {
         {DIRECTION_LABEL[f.direction]}
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <Stat label="احتمال الصعود" value={pct(f.bullishProbability)} tone="bull" />
-        <Stat label="احتمال الهبوط" value={pct(f.bearishProbability)} tone="bear" />
-        <Stat label="احتمال الحياد" value={pct(f.neutralProbability)} />
-        <Stat label="الثقة المعايرة" value={pct(f.confidence)} hint="معايرة من سلوك خارج العينة" />
-        <Stat label="العائد المتوقع" value={`${numFmt(f.expectedReturn)}%`} />
-        <Stat label="التقلب المتوقع" value={`${numFmt(f.expectedVolatility)}%`} />
-        <Stat label="النطاق المتوقع (أدنى)" value={numFmt(f.expectedLow, 4)} />
-        <Stat label="النطاق المتوقع (أعلى)" value={numFmt(f.expectedHigh, 4)} />
-        <Stat label="سعر المرجع" value={numFmt(f.referenceClose, 4)} />
+        <Stat label="Bullish probability" value={pct(f.bullishProbability)} tone="bull" />
+        <Stat label="Bearish probability" value={pct(f.bearishProbability)} tone="bear" />
+        <Stat label="Neutral probability" value={pct(f.neutralProbability)} />
+        <Stat label="Calibrated confidence" value={pct(f.confidence)} hint="Calibrated from out-of-sample behavior" />
+        <Stat label="Expected return" value={`${numFmt(f.expectedReturn)}%`} />
+        <Stat label="Expected volatility" value={`${numFmt(f.expectedVolatility)}%`} />
+        <Stat label="Expected range (low)" value={numFmt(f.expectedLow, 4)} />
+        <Stat label="Expected range (high)" value={numFmt(f.expectedHigh, 4)} />
+        <Stat label="Reference price" value={numFmt(f.referenceClose, 4)} />
       </div>
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-soft">
-        <span>حجم العينة: {f.sampleSize}</span>
-        <span>إصدار النموذج: {f.modelVersion}</span>
-        <span>آخر بيانات: {new Date(f.dataTimestamp).toLocaleString("ar")}</span>
-        <span>جودة البيانات: {f.dataQuality}</span>
+        <span>Sample size: {f.sampleSize}</span>
+        <span>Model version: {f.modelVersion}</span>
+        <span>Latest data: {new Date(f.dataTimestamp).toLocaleString("en")}</span>
+        <span>Data quality: {f.dataQuality}</span>
       </div>
     </Panel>
   );
@@ -50,7 +50,7 @@ export function NextCandle({ f }: { f: NextCandleForecast }) {
 export function Evidence({ f }: { f: NextCandleForecast }) {
   const max = Math.max(...f.evidence.map((e) => Math.abs(e.contribution)), 1);
   return (
-    <Panel title="تفسير التوقع" subtitle="مساهمات النموذج في القرار الحالي (نقاط لوجيت مقيسة)، مع العوامل المعاكسة.">
+    <Panel title="Forecast explanation" subtitle="Model contributions to the current decision (scaled logit points), including opposing factors.">
       <ul className="space-y-2">
         {f.evidence.map((e) => (
           <li key={e.label} className="flex items-center gap-3">
@@ -72,7 +72,7 @@ export function Evidence({ f }: { f: NextCandleForecast }) {
         ))}
       </ul>
       <p className="mt-3 text-[11px] text-ink-soft">
-        هذه علاقات إحصائية استخرجها النموذج، وليست إثباتاً لعلاقة سببية.
+        These are statistical relationships extracted by the model, not proof of causation.
       </p>
     </Panel>
   );
@@ -80,20 +80,20 @@ export function Evidence({ f }: { f: NextCandleForecast }) {
 
 export function ModelQuality({ f }: { f: NextCandleForecast }) {
   const rows: { label: string; m: NextCandleForecast["metrics"]["train"] }[] = [
-    { label: "تدريب", m: f.metrics.train },
-    { label: "تحقق", m: f.metrics.validation },
-    { label: "خارج العينة", m: f.metrics.outOfSample },
-    { label: "المرجع البسيط", m: f.metrics.baseline },
+    { label: "Train", m: f.metrics.train },
+    { label: "Validation", m: f.metrics.validation },
+    { label: "Out of sample", m: f.metrics.outOfSample },
+    { label: "Baseline", m: f.metrics.baseline },
   ];
   return (
-    <Panel title="أداء النموذج" subtitle="تقسيم زمني 60/20/20 بدون خلط عشوائي، مع مقارنة إلزامية بنموذج مرجعي.">
+    <Panel title="Model performance" subtitle="60/20/20 chronological split with no random shuffling, with a mandatory baseline comparison.">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] text-right text-xs">
           <thead className="text-ink-soft">
             <tr className="border-b border-glass-border">
-              <th className="py-2 font-medium">المجموعة</th>
-              <th className="py-2 font-medium">العينات</th>
-              <th className="py-2 font-medium">الدقة</th>
+              <th className="py-2 font-medium">Group</th>
+              <th className="py-2 font-medium">Samples</th>
+              <th className="py-2 font-medium">Accuracy</th>
               <th className="py-2 font-medium">Log Loss</th>
               <th className="py-2 font-medium">Brier</th>
               <th className="py-2 font-medium">AUC</th>
@@ -115,18 +115,18 @@ export function ModelQuality({ f }: { f: NextCandleForecast }) {
       </div>
       {f.metrics.walkForward.length > 0 && (
         <div className="mt-4">
-          <div className="mb-2 text-[11px] text-ink-soft">Walk-Forward (نوافذ متزايدة)</div>
+          <div className="mb-2 text-[11px] text-ink-soft">Walk-Forward (expanding windows)</div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             {f.metrics.walkForward.map((m, i) => (
-              <Stat key={i} label={`نافذة ${i + 1}`} value={pct(m.accuracy)} hint={`AUC ${numFmt(m.auc, 2)}`} />
+              <Stat key={i} label={`Window ${i + 1}`} value={pct(m.accuracy)} hint={`AUC ${numFmt(m.auc, 2)}`} />
             ))}
           </div>
         </div>
       )}
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <Stat label="نظام السوق الحالي" value={REGIME_LABELS[f.regime] ?? f.regime} />
-        <Stat label="عينات نفس النظام" value={String(f.regimeStats.samples)} />
-        <Stat label="نسبة النجاح في نفس النظام" value={pct(f.regimeStats.successRate)} />
+        <Stat label="Current market regime" value={REGIME_LABELS[f.regime] ?? f.regime} />
+        <Stat label="Same-regime samples" value={String(f.regimeStats.samples)} />
+        <Stat label="Same-regime success rate" value={pct(f.regimeStats.successRate)} />
       </div>
     </Panel>
   );

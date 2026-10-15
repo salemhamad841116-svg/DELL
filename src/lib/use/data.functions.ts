@@ -17,7 +17,7 @@ export const fetchCoverage = createServerFn({ method: "POST" })
     const { fetchHistorical } = await import("./data/providers.server");
     const { listSymbols, marketOf } = await import("./market-data.server");
     const sym = (await listSymbols()).find((s) => s.symbol === data.symbol);
-    if (!sym && !data.providerSymbol) throw new Error("رمز غير معروف");
+    if (!sym && !data.providerSymbol) throw new Error("Unknown symbol");
     const end = Date.now();
     const { coverage } = await fetchHistorical(
       {

@@ -8,7 +8,7 @@ export function standardizer(X: number[][]) {
   for (const r of X) r.forEach((v, j) => (mu[j] += v / X.length));
   for (const r of X) r.forEach((v, j) => (sd[j] += (v - (mu[j] ?? 0)) ** 2 / X.length));
   const s = sd.map((v) => Math.sqrt(v) || 1);
-  return (x: number[]) => x.map((v, j) => (v - mu[j]) / s[j]);
+  return (x: number[]) => x.map((v, j) => (v - (mu[j] ?? 0)) / (s[j] ?? 1));
 }
 
 const sig = (z: number) => 1 / (1 + Math.exp(-Math.max(-30, Math.min(30, z))));

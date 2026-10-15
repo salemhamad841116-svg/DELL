@@ -334,7 +334,7 @@ function AdminPage() {
               <tbody>
                 {(log.data ?? []).map((p) => (
                   <tr key={p.id} className="border-b border-glass-border/70 last:border-0">
-                    <td className="num py-2">{new Date(p.created_at).toLocaleString("ar")}</td>
+                    <td className="num py-2">{new Date(p.created_at).toLocaleString("en")}</td>
                     <td className="num py-2">{p.symbol}</td>
                     <td className="num py-2">{p.timeframe}</td>
                     <td className="py-2 text-ink">{p.direction}</td>

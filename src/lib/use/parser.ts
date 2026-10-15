@@ -18,12 +18,12 @@ export function detectLanguage(code: string): Language {
 }
 
 const DANGEROUS: { rule: string; re: RegExp; detail: string }[] = [
-  { rule: "network", re: /\b(fetch|request\.get|urllib|httpclient|webrequest|socket)\b/i, detail: "طلبات شبكة خارجية" },
-  { rule: "filesystem", re: /\b(fs\.|open\s*\(|fileopen|fileread|filewrite)\b/i, detail: "وصول لنظام الملفات" },
-  { rule: "process", re: /\b(child_process|subprocess|exec\s*\(|system\s*\(|os\.popen)\b/i, detail: "تشغيل عمليات نظام" },
-  { rule: "eval", re: /\b(eval|new Function|exec)\s*\(/i, detail: "تنفيذ كود ديناميكي" },
-  { rule: "order-execution", re: /\b(ordersend|strategy\.entry|strategy\.close|placeorder|createorder)\b/i, detail: "أوامر تنفيذ حقيقية — تُحيّد في وضع التحليل" },
-  { rule: "credentials", re: /\b(api[_-]?key|secret|password|token)\s*[:=]/i, detail: "بيانات حساسة داخل الكود" },
+  { rule: "network", re: /\b(fetch|request\.get|urllib|httpclient|webrequest|socket)\b/i, detail: "External network requests" },
+  { rule: "filesystem", re: /\b(fs\.|open\s*\(|fileopen|fileread|filewrite)\b/i, detail: "Filesystem access" },
+  { rule: "process", re: /\b(child_process|subprocess|exec\s*\(|system\s*\(|os\.popen)\b/i, detail: "System process execution" },
+  { rule: "eval", re: /\b(eval|new Function|exec)\s*\(/i, detail: "Dynamic code execution" },
+  { rule: "order-execution", re: /\b(ordersend|strategy\.entry|strategy\.close|placeorder|createorder)\b/i, detail: "Real order-execution calls — neutralised in analysis mode" },
+  { rule: "credentials", re: /\b(api[_-]?key|secret|password|token)\s*[:=]/i, detail: "Sensitive credentials embedded in the code" },
 ];
 
 export function validateSecurity(code: string, language: Language): SecurityValidation {
@@ -38,10 +38,10 @@ export function validateSecurity(code: string, language: Language): SecurityVali
     }
   }
   if (code.length > 200_000) {
-    findings.push({ severity: "warning", rule: "size", detail: "الكود كبير جداً — قد يستهلك موارد التحليل" });
+    findings.push({ severity: "warning", rule: "size", detail: "Code is very large — may consume analysis resources" });
   }
   if (language === "unknown") {
-    findings.push({ severity: "warning", rule: "language", detail: "لم يتم التعرف على اللغة بثقة" });
+    findings.push({ severity: "warning", rule: "language", detail: "Language could not be confidently detected" });
   }
   const critical = findings.some((f) => f.severity === "critical");
   return {
